@@ -1,12 +1,21 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { JobPosts } from "../typechain";
 
 describe("JobPosts", function () {
-  it("Should post a job", async function () {
-    const JobPosts = await ethers.getContractFactory("JobPosts");
-    const jobPosts = await JobPosts.deploy();
-    await jobPosts.deployed();
+  let contract: JobPosts;
 
-    expect(await jobPosts.postJob("<cid>")).to.emit(jobPosts, "JobPosted");
+  before(async function () {
+    const Contract = await ethers.getContractFactory("JobPosts");
+    contract = await Contract.deploy();
+    await contract.deployed();
+  });
+
+  it("#postJob should post a job", async function () {
+    expect(await contract.postJob("<cid>")).to.emit(contract, "JobPosted");
+  });
+
+  it("#removeJob should remove a job", async function () {
+    expect(await contract.removeJob(0)).to.emit(contract, "JobRemoved");
   });
 });
