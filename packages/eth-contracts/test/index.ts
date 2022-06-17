@@ -1,17 +1,17 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { JobPosts } from "../typechain";
+import { Jobs } from "../typechain";
 
-describe("JobPosts", function () {
-  let contract: JobPosts;
+describe("Jobs", function () {
+  let contract: Jobs;
   let signers: SignerWithAddress[];
   let defaultSigner: SignerWithAddress;
 
   before(async function () {
     signers = await ethers.getSigners();
     defaultSigner = signers[0];
-    const Contract = await ethers.getContractFactory("JobPosts");
+    const Contract = await ethers.getContractFactory("Jobs");
     contract = await Contract.deploy();
     await contract.deployed();
   });

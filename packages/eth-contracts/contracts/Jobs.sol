@@ -2,84 +2,36 @@
 pragma solidity ^0.8.4;
 
 import "hardhat/console.sol";
-
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-import "./JobPosts.sol";
+import "./JobToken.sol";
 
-/// @custom:security-contact devex.soft@gmail.com
-contract Jobs is
-    JobPosts,
-    ERC721,
-    ERC721Enumerable,
-    ERC721URIStorage,
-    Pausable,
-    Ownable,
-    ERC721Burnable
-{
+contract Jobs is JobToken {
     using Counters for Counters.Counter;
+    Counters.Counter private _jobsCounter;
 
-    Counters.Counter private _tokenIdCounter;
-
-    constructor() ERC721("Jobs", "JOBS") {}
-
-    function _baseURI() internal pure override returns (string memory) {
-        return "https://0xjobs.dev/jobs/";
+    struct Job {
+        address owner;
+        string cid; // ipfs content id (CID)
     }
 
-    function pause() public onlyOwner {
-        _pause();
+    mapping(uint256 => Job) public jobs;
+
+    event JobPosted(address indexed from, uint256 indexed id);
+    event JobRemoved(address indexed from, uint256 indexed id);
+
+    function postJob(string memory cid) public {
+        Job memory _job = Job({owner: msg.sender, cid: cid});
+
+        uint256 _counter = _jobsCounter.current();
+        jobs[_counter] = _job;
+
+        emit JobPosted(msg.sender, _counter);
+        _jobsCounter.increment();
     }
 
-    function unpause() public onlyOwner {
-        _unpause();
-    }
-
-    function safeMint(address to, string memory uri) public onlyOwner {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
-        _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
-    }
-
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal override(ERC721, ERC721Enumerable) whenNotPaused {
-        super._beforeTokenTransfer(from, to, tokenId);
-    }
-
-    // The following functions are overrides required by Solidity.
-
-    function _burn(uint256 tokenId)
-        internal
-        override(ERC721, ERC721URIStorage)
-    {
-        super._burn(tokenId);
-    }
-
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override(ERC721, ERC721URIStorage)
-        returns (string memory)
-    {
-        return super.tokenURI(tokenId);
-    }
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721, ERC721Enumerable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
+    function removeJob(uint256 id) public {
+        delete jobs[id];
+        emit JobRemoved(msg.sender, id);
     }
 }
