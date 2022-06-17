@@ -16,9 +16,9 @@ describe("Jobs", function () {
     await contract.deployed();
   });
 
-  it("#postJob should post a job", async function () {
-    await expect(contract.postJob("<cid>"))
-      .to.emit(contract, "JobPosted")
+  it("#addJob should post a job", async function () {
+    await expect(contract.addJob("<cid>"))
+      .to.emit(contract, "JobAdded")
       .withArgs(defaultSigner.address, 0);
   });
 

@@ -17,16 +17,16 @@ contract Jobs is JobToken {
 
     mapping(uint256 => Job) public jobs;
 
-    event JobPosted(address indexed from, uint256 indexed id);
+    event JobAdded(address indexed from, uint256 indexed id);
     event JobRemoved(address indexed from, uint256 indexed id);
 
-    function postJob(string memory cid) public {
+    function addJob(string memory cid) public {
         Job memory _job = Job({owner: msg.sender, cid: cid});
 
         uint256 _counter = _jobsCounter.current();
         jobs[_counter] = _job;
 
-        emit JobPosted(msg.sender, _counter);
+        emit JobAdded(msg.sender, _counter);
         _jobsCounter.increment();
     }
 
