@@ -15,16 +15,21 @@ contract JobPosts {
 
     mapping(uint256 => Job) public jobPosts;
 
-    function postJob(string memory cid) public returns (uint256) {
+    event JobPosted(address indexed from, uint256 indexed postId);
+    event JobRemoved(address indexed from, uint256 indexed postId);
+
+    function postJob(string memory cid) public {
         Job memory _job = Job({owner: msg.sender, cid: cid});
+
         uint256 _counter = _jobPostsCounter.current();
         jobPosts[_counter] = _job;
 
+        emit JobPosted(msg.sender, _counter);
         _jobPostsCounter.increment();
-        return _jobPostsCounter.current();
     }
 
-    function removeJob(uint256 id) public {
-        delete jobPosts[id];
+    function removeJob(uint256 postId) public {
+        delete jobPosts[postId];
+        emit JobRemoved(msg.sender, postId);
     }
 }
