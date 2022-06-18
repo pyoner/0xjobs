@@ -5,12 +5,11 @@ import { Jobs } from "../typechain";
 
 describe("Jobs", function () {
   let contract: Jobs;
-  let signers: SignerWithAddress[];
-  let defaultSigner: SignerWithAddress;
+  let owner: SignerWithAddress;
+  let nonOwner: SignerWithAddress;
 
   before(async function () {
-    signers = await ethers.getSigners();
-    defaultSigner = signers[0];
+    [owner, nonOwner] = await ethers.getSigners();
     const Contract = await ethers.getContractFactory("Jobs");
     contract = await Contract.deploy();
     await contract.deployed();
@@ -18,14 +17,22 @@ describe("Jobs", function () {
 
   it("#addJob should post a job", async function () {
     await expect(contract.addJob("<cid>"))
-      .to.emit(contract, "JobAdded")
-      .withArgs(defaultSigner.address, 0);
+      .to.be.emit(contract, "JobAdded")
+      .withArgs(owner.address, 0);
   });
 
   it("#removeJob should remove a job", async function () {
     const id = 0;
     await expect(contract.removeJob(id))
-      .to.emit(contract, "JobRemoved")
-      .withArgs(defaultSigner.address, id);
+      .to.be.emit(contract, "JobRemoved")
+      .withArgs(owner.address, id);
+  });
+
+  it("#removeJob shouldn't remove a job (check onlyOwner)", async function () {
+    const c = await ethers.getContractAt("Jobs", contract.address, nonOwner);
+    const id = 0;
+    await expect(c.removeJob(id)).to.be.revertedWith(
+      "Ownable: caller is not the owner"
+    );
   });
 });

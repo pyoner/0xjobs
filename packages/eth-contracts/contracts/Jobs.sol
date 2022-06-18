@@ -30,7 +30,7 @@ contract Jobs is JobToken {
         _jobsCounter.increment();
     }
 
-    function removeJob(uint256 id) public {
+    function removeJob(uint256 id) public onlyOwner {
         delete jobs[id];
         emit JobRemoved(msg.sender, id);
     }
