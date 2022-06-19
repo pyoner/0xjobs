@@ -8,7 +8,7 @@ contract Fee is Ownable {
 
     event FeeChanged(address indexed from, uint256 indexed fee);
 
-    function changeFee(uint256 fee) public onlyOwner {
+    function setFee(uint256 fee) public onlyOwner {
         FEE = fee;
         emit FeeChanged(msg.sender, fee);
     }
